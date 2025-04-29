@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: bitnami/postgresql
+    container_name: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_USERNAME=victorfy_user
+      - POSTGRESQL_PASSWORD=victorfy_pass
+      - POSTGRESQL_DATABASE=victorfy_db
+    volumes:
+      - pgdata:/bitnami/postgresql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "victorfy_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: npm run dev
+    ports:
+      - 3333:3333
+      - 5555:5555 # Para o Prisma Studio
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules # evita conflito com node_modules do host
+    environment:
+      - DATABASE_URL=postgresql://victorfy_user:victorfy_pass@postgres:5432/victorfy_db?schema=public
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
