@@ -71,3 +71,7 @@ para um arquivo .env
 OBS: no inicio o projeto foi configurado para utilizar o Spotify para fazer a pesquisa de músicas, porém
 por limitações da API, foi optado de seguir com a API da Dezzer, porém deixei a configuração do Spotify
 no projeto para poder exemplificar como seria pra fazer a conexão com a API da empresa.
+
+Também foi optado por persistir os dados de músicas no banco de dados ao serem pesquisadas para assim 
+facilitar a inclusão da lista na playlist, e buscar os dados da música localmente após ja estar em uma
+playlist, assim não sendo necessário fazer busca em API externa quando as músicas ja estão em uma playlist.
